@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
@@ -15,6 +16,24 @@ public class BoardController {
 
     // 생성자 의존 주의 - DI 처리
     private final BoardPersistRepository br;
+
+
+    // 게시글 상세 보기
+    // 주소설계 GET  : http://localhost:8080/board/3
+
+    @GetMapping("/board/{id}")
+    public String detail(@PathVariable(name = "id") Long id, HttpServletRequest request) {
+        Board board = br.findById(id);
+        request.setAttribute("board", board);
+        // prefix: classpath:/templates/
+        // return : board/detail
+        // suffix: .mustache
+        // 1차 캐시 효과 - DB에 접근하지 않고 바로 영속성 컨텍스트에서 꺼낸다.
+        // br.findById(id);
+        return "board/detail";
+    }
+
+
 
     // 주소 설계 : http://localhost:8080/ , http://localhost:8080/index
     @GetMapping({"/", "/index"})

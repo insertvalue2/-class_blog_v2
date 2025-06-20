@@ -17,6 +17,38 @@ public class BoardPersistRepository {
     // @Autowired  final 를 사용시 사용 불가
     private final EntityManager em;
 
+    // 게시글 한건 조회 쿼리 만들기
+    // em.find(), JPQL, 네이티브 쿼리
+    public Board findById(Long id) {
+        // 1차 캐시 활용
+        return em.find(Board.class, id);
+    }
+
+    // JQPL를 사용환 조회 방법 (비교용 - 실제로는 find() 권장)
+    public Board findByIdWithJPQL(Long id) {
+        // 네임드 파라미터 권장 사용
+        String jpql = " SELECT b FROM Board b WHERE b.id = :id ";
+//        Query query = em.createQuery(jpql, Board.class);
+//        query.setParameter("id", id);
+//        Board board = (Board) query.getSingleResult();
+        try {
+            return em.createQuery(jpql, Board.class)
+                    .setParameter("id", id)
+                    .getSingleResult(); // 주의점 : 결과 없으면 NoResultException 발생
+        } catch (Exception e) {
+            return null;
+        }
+
+        // JPQL 단점 :
+        // 1. 1차 캐시 우회하여 항상 DB 접근
+        // 2. 코드가 복잡하게 나올 수 있음
+        // 3. getSingleResult() 호출 <-- 예외 처리 해주어야 함
+    }
+
+
+
+
+
     // JPQL을 사용한 게시글 목록 조회
     public List<Board> findAll() {
         // JPQL : 엔티티 객체를 대상으로 하는 객체지향 쿼리
